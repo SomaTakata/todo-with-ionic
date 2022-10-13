@@ -31,68 +31,49 @@ import {
   IonItemSliding,
   IonItemOptions,
   IonItemOption,
+  IonItemGroup,
+  IonCheckbox,
 } from "@ionic/react";
+import "./style.css";
 import { IonInputCustomEvent, InputChangeEventDetail } from "@ionic/core";
 import { useState } from "react";
 import { nanoid } from "nanoid";
 import zh from "@mobiscroll/react/dist/src/i18n/zh";
+import { returnDate } from "@mobiscroll/react/dist/src/core/util/datetime";
 
 setupIonicReact();
 interface Todo {
   id: string;
   content: string;
   boolean: boolean;
+  isDone: false;
 }
 interface editTodo {
   content: string;
   id: string;
 }
 
-// interface TodoLostItemProps {
-//   todo: Todo;
-// }
-
-// const TodoList = ({ todo }: TodoLostItemProps) => {
-//   <IonItemSliding key={todo.id}>
-//     <IonItem>
-//       <IonLabel>{todo.content}</IonLabel>
-//     </IonItem>
-//     <IonItemOptions side="end">
-//       <IonItemOption color="medium">編集</IonItemOption>
-//       <IonItemOption
-//         color="danger"
-//         onClick={(event) => {
-//           setTodos((prevTodos) =>
-//             prevTodos.filter(
-//               (prevTodo) => prevTodo.id !== todo.id
-//               //prevTodoとtodoの何が違うのか。
-//             )
-//           );
-//         }}
-//       >
-//         削除
-//       </IonItemOption>
-//     </IonItemOptions>
-//   </IonItemSliding>;
-// };
-
 function App() {
   const [todos, setTodos] = useState<Todo[]>([
     {
       content: "todoの内容",
       id: "1",
-      boolean: true,
+      boolean: false,
+      isDone: false,
     },
     {
       id: "2",
       content: "二つ目の内容",
       boolean: true,
+      isDone: true,
     },
   ]);
+  // 入力ホーム
   const [input, setInput] = useState<string>("");
 
-  //入力ホーム
+  //編集用
   const [editedInput, setEditedInput] = useState<string>("");
+  // 文字列の受け取り
   const handleChangeInput = (
     event: IonInputCustomEvent<InputChangeEventDetail>
   ): void => {
@@ -102,29 +83,47 @@ function App() {
     }
     setInput(value.toString());
   };
-
-  const handleEditInput = (
+  const handleEditChangeInput = (
     event: IonInputCustomEvent<InputChangeEventDetail>
   ): void => {
-    const value = event.target.value;
-    if (value === null || value === undefined) {
+    const text = event.target.value;
+    if (text === null || text === undefined) {
       return;
     }
-    setEditedInput(value.toString());
+    setEditedInput(text.toString());
   };
+
+  // 編集
+  const handleEdit = (id: string, content: string) => {
+    const newState = todos.map((todo) => {
+      if (todo.id !== id) return todo;
+      return { ...todo, content: content };
+    });
+
+    setTodos(newState);
+  };
+
   // 送信
-  const handleSubmitForm: React.FormEventHandler<HTMLFormElement> = (event) => {
+  const handleSubmit: React.MouseEventHandler<HTMLIonButtonElement> = (
+    event
+  ) => {
     event.preventDefault();
     const newTodo: Todo = {
       id: nanoid(),
       content: input,
       boolean: true,
+      isDone: false,
     };
 
     setTodos((prevState) => [...prevState, newTodo]);
     setInput("");
   };
 
+  // 消去
+  const handleDelete = (id: string) => {
+    const newState = todos.filter((todo) => todo.id !== id);
+    setTodos(newState);
+  };
   return (
     <IonApp>
       <IonPage>
@@ -134,105 +133,72 @@ function App() {
           </IonToolbar>
         </IonHeader>
         <IonContent className="ion-padding ">
-          <form onSubmit={handleSubmitForm}>
-            <IonItem>
-              <IonLabel position="floating">TODOの内容を入力</IonLabel>
-              <IonInput
-                placeholder="腕足せを二十回する"
-                onIonChange={handleChangeInput}
-                value={input}
-              />
+          <IonItem>
+            <IonLabel position="floating">TODOの内容を入力</IonLabel>
+            <IonInput
+              placeholder="腕足せを二十回する"
+              onIonChange={handleChangeInput}
+              value={input}
+            />
 
-              <IonButton
-                item-right
-                slot="end"
-                disabled={input === ""}
-                type="submit"
-              >
-                追加
-              </IonButton>
-            </IonItem>
-          </form>
+            <IonButton
+              item-right
+              size="default"
+              slot="end"
+              disabled={input === ""}
+              type="submit"
+              onClick={handleSubmit}
+            >
+              追加
+            </IonButton>
+          </IonItem>
           <IonList className="ion-padding-vertical">
-            <IonListHeader>TODO一覧</IonListHeader>
+            <IonListHeader color="medium">TODO一覧</IonListHeader>
             {todos.map((todo) => {
               return (
-                <form
-                  key={todo.id}
-                  onSubmit={(event) => {
-                    event.preventDefault();
-                    setTodos((prevTodo) =>
-                      prevTodo.map((prev) => {
-                        if (prev.id === todo.id) {
-                          return {
-                            id: todo.id,
-                            content: editedInput,
-                            boolean: true,
-                          };
-                        } else {
-                          return prev;
-                        }
-                      })
-                    );
-                    setEditedInput("");
-                  }}
-                >
-                  <IonItemSliding>
-                    <IonItem>
-                      <IonLabel>{todo.content}</IonLabel>
-                      <IonItem>
-                        <IonInput
-                          disabled={todo.boolean}
-                          placeholder="編集用"
-                          onIonChange={handleEditInput}
-                          // value={todos.map((prev) => {
-                          //   if (prev.id === todo.id) {
-                          //     return editedInput;
-                          //   } else {
-                          //     return todo;
-                          //   }
-                          // })}
-                          value={editedInput}
-                        />
-                      </IonItem>
-                    </IonItem>
-                    <IonItemOptions side="end">
-                      <IonItemOption
-                        type="submit"
-                        onClick={(event) => {
-                          setTodos((prevTodo) =>
-                            prevTodo.map((prev) => {
-                              if (prev.id === todo.id) {
-                                return {
-                                  id: todo.id,
-                                  content: todo.content,
-                                  boolean: false,
-                                };
-                              } else {
-                                return prev;
-                              }
-                            })
-                          );
-                        }}
-                      >
-                        編集
-                      </IonItemOption>
-                      <IonItemOption
-                        color="danger"
-                        onClick={(event) => {
-                          setTodos((prevTodos) =>
-                            prevTodos.filter(
-                              (prevTodo) => prevTodo.id !== todo.id
-                              //prevTodoとtodoの何が違うのか。
-                            )
-                          );
-                        }}
-                      >
-                        削除
-                      </IonItemOption>
-                    </IonItemOptions>
-                  </IonItemSliding>
-                </form>
+                <IonItem key={todo.id}>
+                  {/* <IonCheckbox
+                    checked={todo.isDone}
+                    onClick={(event) => {
+                      setTodos((prevState) => {
+                        prevState.map((prev) => {
+                          if (prev.id === todo.id) {
+                            return {
+                              id: todo.id,
+                              content: todo.content,
+                              boolean: todo.boolean,
+                              isDone: true,
+                            };
+                          } else {
+                            return todo;
+                          }
+                        });
+                      });
+                    }}
+                  /> */}
+
+                  <IonInput
+                    type="text"
+                    value={todo.content}
+                    onIonChange={handleEditChangeInput}
+                    // style={{
+                    //   textDecoration: todo.isDone ? "line-through" : "",
+                    // }}
+                  />
+
+                  <IonButton class="button1" item-right disabled={todo.boolean}>
+                    完了
+                  </IonButton>
+
+                  <IonButton
+                    color="danger"
+                    onClick={() => {
+                      handleDelete(todo.id);
+                    }}
+                  >
+                    削除
+                  </IonButton>
+                </IonItem>
               );
             })}
           </IonList>
