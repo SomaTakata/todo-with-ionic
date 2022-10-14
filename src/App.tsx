@@ -33,6 +33,9 @@ import {
   IonItemOption,
   IonItemGroup,
   IonCheckbox,
+  IonReorder,
+  IonReorderGroup,
+  IonVirtualScroll,
 } from "@ionic/react";
 import "./style.css";
 import { IonInputCustomEvent, InputChangeEventDetail } from "@ionic/core";
@@ -82,15 +85,6 @@ function App() {
       return;
     }
     setInput(value.toString());
-  };
-  const handleEditChangeInput = (
-    event: IonInputCustomEvent<InputChangeEventDetail>
-  ): void => {
-    const text = event.target.value;
-    if (text === null || text === undefined) {
-      return;
-    }
-    setEditedInput(text.toString());
   };
 
   // 編集
@@ -157,40 +151,62 @@ function App() {
             {todos.map((todo) => {
               return (
                 <IonItem key={todo.id}>
-                  {/* <IonCheckbox
+                  <IonCheckbox
                     checked={todo.isDone}
-                    onClick={(event) => {
-                      setTodos((prevState) => {
-                        prevState.map((prev) => {
-                          if (prev.id === todo.id) {
+                    onIonChange={(e) => {
+                      const newValue = e.detail.checked;
+
+                      if (newValue === null || newValue === undefined) {
+                        return;
+                      }
+
+                      setTodos((prevTodos) => {
+                        return prevTodos.map((prevTodo) => {
+                          if (todo.id === prevTodo.id) {
                             return {
-                              id: todo.id,
-                              content: todo.content,
-                              boolean: todo.boolean,
-                              isDone: true,
+                              ...prevTodo,
+                              isDone: newValue,
                             };
-                          } else {
-                            return todo;
                           }
+                          return prevTodo;
                         });
                       });
                     }}
-                  /> */}
-
-                  <IonInput
-                    type="text"
-                    value={todo.content}
-                    onIonChange={handleEditChangeInput}
-                    // style={{
-                    //   textDecoration: todo.isDone ? "line-through" : "",
-                    // }}
                   />
 
-                  <IonButton class="button1" item-right disabled={todo.boolean}>
-                    完了
-                  </IonButton>
+                  <IonInput
+                    class="text"
+                    type="text"
+                    value={todo.content}
+                    onIonChange={(e) => {
+                      const newContent = e.detail.value;
+
+                      if (newContent === null || newContent === undefined) {
+                        return;
+                      }
+
+                      setTodos((prevTodos) => {
+                        return prevTodos.map((prevTodo) => {
+                          if (todo.id === prevTodo.id) {
+                            // edit
+                            return {
+                              ...prevTodo,
+                              content: newContent,
+                            };
+                          }
+
+                          return prevTodo;
+                        });
+                      });
+                    }}
+                    style={{
+                      textDecoration: todo.isDone ? "line-through " : "",
+                    }}
+                  />
 
                   <IonButton
+                    slot="end"
+                    size="default"
                     color="danger"
                     onClick={() => {
                       handleDelete(todo.id);
