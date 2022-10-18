@@ -36,20 +36,20 @@ import {
   IonReorder,
   IonReorderGroup,
   IonVirtualScroll,
+  IonCard,
 } from "@ionic/react";
 import "./style.css";
 import { IonInputCustomEvent, InputChangeEventDetail } from "@ionic/core";
 import { useState } from "react";
 import { nanoid } from "nanoid";
-import zh from "@mobiscroll/react/dist/src/i18n/zh";
-import { returnDate } from "@mobiscroll/react/dist/src/core/util/datetime";
 
 setupIonicReact();
 interface Todo {
   id: string;
   content: string;
   boolean: boolean;
-  isDone: false;
+  isDone: boolean;
+  todoDate: string;
 }
 interface editTodo {
   content: string;
@@ -63,12 +63,14 @@ function App() {
       id: "1",
       boolean: false,
       isDone: false,
+      todoDate: "2022/09/22 11:43:54",
     },
     {
       id: "2",
       content: "二つ目の内容",
       boolean: true,
       isDone: true,
+      todoDate: "2022/10/03 11:43:53",
     },
   ]);
   // 入力ホーム
@@ -107,6 +109,7 @@ function App() {
       content: input,
       boolean: true,
       isDone: false,
+      todoDate: new Date().toLocaleString(),
     };
 
     setTodos((prevState) => [...prevState, newTodo]);
@@ -127,30 +130,33 @@ function App() {
           </IonToolbar>
         </IonHeader>
         <IonContent className="ion-padding ">
-          <IonItem>
-            <IonLabel position="floating">TODOの内容を入力</IonLabel>
-            <IonInput
-              placeholder="腕足せを二十回する"
-              onIonChange={handleChangeInput}
-              value={input}
-            />
+          <IonCard>
+            <IonItem>
+              <IonLabel position="floating">TODOの内容を入力</IonLabel>
+              <IonInput
+                placeholder="腕足せを二十回する"
+                onIonChange={handleChangeInput}
+                value={input}
+              />
 
-            <IonButton
-              item-right
-              size="default"
-              slot="end"
-              disabled={input === ""}
-              type="submit"
-              onClick={handleSubmit}
-            >
-              追加
-            </IonButton>
-          </IonItem>
+              <IonButton
+                item-right
+                size="default"
+                slot="end"
+                className="add"
+                disabled={input === ""}
+                type="submit"
+                onClick={handleSubmit}
+              >
+                追加
+              </IonButton>
+            </IonItem>
+          </IonCard>
           <IonList className="ion-padding-vertical">
             <IonListHeader color="medium">TODO一覧</IonListHeader>
             {todos.map((todo) => {
               return (
-                <IonItem key={todo.id}>
+                <IonItem key={todo.id} className="border">
                   <IonCheckbox
                     checked={todo.isDone}
                     onIonChange={(e) => {
@@ -175,7 +181,7 @@ function App() {
                   />
 
                   <IonInput
-                    class="text"
+                    className="text"
                     type="text"
                     value={todo.content}
                     onIonChange={(e) => {
@@ -203,6 +209,9 @@ function App() {
                       textDecoration: todo.isDone ? "line-through " : "",
                     }}
                   />
+                  <IonLabel class="date" color="medium">
+                    {todo.todoDate.toLocaleString()}
+                  </IonLabel>
 
                   <IonButton
                     slot="end"

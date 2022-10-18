@@ -4,5 +4,25 @@ ion-checkbox {
   float: left;
 }
 ion-input.text {
-  border: 10px;
+  font-size: large;
+}
+ion-button.add {
+  margin: auto;
+}
+ion-item.border {
+  border-left: 1.5px solid rgb(220, 219, 219);
+  border-right: 1.5px solid rgb(220, 219, 219);
+}
+ion-list-header {
+  font-size: large;
+  font-weight: bolder;
+  height: 54px;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+}
+ion-header {
+  text-align: center;
+}
+ion-label.date {
+  font-size: small;
 }
