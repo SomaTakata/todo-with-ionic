@@ -9,6 +9,16 @@ ion-input.text {
 ion-button.add {
   margin: auto;
 }
+ion-button.allDelete {
+  color: white;
+  font-size: small;
+  font-weight: 550;
+  background-color: #4cbe54;
+  border-radius: 3.5px;
+  margin-right: 20px;
+  text-align: right;
+  --box-shadow: 0 3px 15px rgba(0, 0, 0, 0.2);
+}
 ion-item.border {
   border-left: 1.5px solid rgb(220, 219, 219);
   border-right: 1.5px solid rgb(220, 219, 219);
@@ -25,4 +35,36 @@ ion-header {
 }
 div.date {
   font-size: small;
+}
+div.dateDisplay {
+  font-size: small;
+  font-weight: 550;
+  text-align: right;
+  padding-right: 100px;
+}
+
+ion-buttons.calendar {
+  padding-right: 20px;
+  justify-content: center;
+  margin-top: auto;
+  margin-bottom: auto;
+}
+ion-icon.calendar {
+  font-size: 25px;
+}
+ion-modal#calendar {
+  justify-content: center;
+  align-items: center;
+  margin-left: auto;
+  margin-right: auto;
+  flex: auto;
+  margin-top: auto;
+  margin-bottom: autos;
+  --height: 65%;
+  --width: 60%;
+  height: 700px;
+  width: 500px;
+  --border-radius: 16px;
+  --box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1),
+    0 4px 6px -4px rgb(0 0 0 / 0.1);
 }

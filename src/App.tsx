@@ -1,5 +1,6 @@
-import React from "react";
-
+import React, { useRef } from "react";
+import { format, getYear, parseISO } from "date-fns";
+import { ja } from "date-fns/locale";
 /* Core CSS required for Ionic components to work properly */
 import "@ionic/react/css/core.css";
 
@@ -38,12 +39,15 @@ import {
   IonReorderGroup,
   IonVirtualScroll,
   IonCard,
+  IonDatetime,
+  IonButtons,
+  IonModal,
 } from "@ionic/react";
 import "./style.css";
 import { IonInputCustomEvent, InputChangeEventDetail } from "@ionic/core";
 import { useState } from "react";
 import { nanoid } from "nanoid";
-
+import { calendarOutline } from "ionicons/icons";
 setupIonicReact();
 interface Todo {
   id: string;
@@ -64,18 +68,19 @@ function App() {
       id: "1",
       boolean: false,
       isDone: false,
-      todoDate: "2022/09/22 11:43:54",
+      todoDate: "2022/10/10(月) ",
     },
     {
       id: "2",
       content: "二つ目の内容",
       boolean: true,
       isDone: true,
-      todoDate: "2022/10/03 11:43:53",
+      todoDate: "2022/10/13(木)",
     },
   ]);
   // 入力ホーム
   const [input, setInput] = useState<string>("");
+  const [date, setDate] = useState<string>("");
 
   //編集用
   const [editedInput, setEditedInput] = useState<string>("");
@@ -110,7 +115,7 @@ function App() {
       content: input,
       boolean: true,
       isDone: false,
-      todoDate: new Date().toLocaleString(),
+      todoDate: date,
     };
 
     setTodos((prevState) => [...prevState, newTodo]);
@@ -122,6 +127,14 @@ function App() {
     const newState = todos.filter((todo) => todo.id !== id);
     setTodos(newState);
   };
+  // const handleAllDelete = () => {
+  //   setTodos([]);
+  // };
+  const modal = useRef<HTMLIonModalElement>(null);
+
+  function dismiss() {
+    modal.current?.dismiss();
+  }
   return (
     <IonApp>
       <IonPage>
@@ -139,7 +152,36 @@ function App() {
                 onIonChange={handleChangeInput}
                 value={input}
               />
-
+              <IonButtons slot="end" className="calendar" id="open-modal">
+                <IonButton id="open-modal" slot="end" className="calendar">
+                  <IonIcon
+                    className="calendar"
+                    icon={calendarOutline}
+                  ></IonIcon>
+                </IonButton>
+              </IonButtons>
+              <IonModal id="calendar" ref={modal} trigger="open-modal">
+                <IonDatetime
+                  // presentation="date"
+                  showDefaultButtons={true}
+                  onIonChange={(e) => {
+                    const newValue = e.target.value;
+                    if (newValue === null || newValue === undefined) {
+                      return;
+                    }
+                    console.log(
+                      format(parseISO(newValue), "yyyy/M/d(E) HH:mm", {
+                        locale: ja,
+                      })
+                    );
+                    setDate(
+                      format(parseISO(newValue), "yyyy/M/d(E)", {
+                        locale: ja,
+                      })
+                    );
+                  }}
+                ></IonDatetime>
+              </IonModal>
               <IonButton
                 item-right
                 size="default"
@@ -154,7 +196,17 @@ function App() {
             </IonItem>
           </IonCard>
           <IonList className="ion-padding-vertical">
-            <IonListHeader color="medium">TODO一覧</IonListHeader>
+            <IonListHeader color="medium">
+              <IonLabel>TODO一覧</IonLabel>
+              <IonLabel color="light">
+                <div className="dateDisplay">いつまでに終わらせる</div>
+              </IonLabel>
+              {/* <div>
+                <IonButton className="allDelete" size="default">
+                  並び替え
+                </IonButton>
+              </div> */}
+            </IonListHeader>
             {todos.map((todo) => {
               return (
                 <IonItem key={todo.id} className="border">
@@ -184,6 +236,7 @@ function App() {
                   <IonInput
                     className="text"
                     type="text"
+                    disabled={todo.isDone}
                     value={todo.content}
                     onIonChange={(e) => {
                       const newContent = e.detail.value;
