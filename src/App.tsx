@@ -1,3 +1,5 @@
+import React from "react";
+
 /* Core CSS required for Ionic components to work properly */
 import "@ionic/react/css/core.css";
 
@@ -5,7 +7,6 @@ import "@ionic/react/css/core.css";
 import "@ionic/react/css/normalize.css";
 import "@ionic/react/css/structure.css";
 import "@ionic/react/css/typography.css";
-
 /* Optional CSS utils that can be commented out */
 import "@ionic/react/css/padding.css";
 import "@ionic/react/css/float-elements.css";
@@ -206,11 +207,12 @@ function App() {
                       });
                     }}
                     style={{
-                      textDecoration: todo.isDone ? "line-through " : "",
+                      textDecoration: todo.isDone ? "line-through  " : "",
+                      color: todo.isDone ? "gray" : "",
                     }}
                   />
-                  <IonLabel class="date" color="medium">
-                    {todo.todoDate.toLocaleString()}
+                  <IonLabel color="medium">
+                    <div className="date">{todo.todoDate.toLocaleString()}</div>
                   </IonLabel>
 
                   <IonButton

@@ -23,6 +23,6 @@ ion-list-header {
 ion-header {
   text-align: center;
 }
-ion-label.date {
+div.date {
   font-size: small;
 }
