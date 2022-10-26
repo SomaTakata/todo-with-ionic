@@ -42,6 +42,8 @@ import {
   IonDatetime,
   IonButtons,
   IonModal,
+  IonSelect,
+  IonSelectOption,
 } from "@ionic/react";
 import "./style.css";
 import { IonInputCustomEvent, InputChangeEventDetail } from "@ionic/core";
@@ -199,8 +201,14 @@ function App() {
             <IonListHeader color="medium">
               <IonLabel>TODO一覧</IonLabel>
               <IonLabel color="light">
-                <div className="dateDisplay">いつまでに終わらせる</div>
+                <div className="dateDisplay">いつまでに</div>
               </IonLabel>
+              <div>
+                <IonSelect interface="popover" placeholder="並び替え">
+                  <IonSelectOption value="up">昇順</IonSelectOption>
+                  <IonSelectOption value="down">降順</IonSelectOption>
+                </IonSelect>
+              </div>
               {/* <div>
                 <IonButton className="allDelete" size="default">
                   並び替え
@@ -260,7 +268,7 @@ function App() {
                       });
                     }}
                     style={{
-                      textDecoration: todo.isDone ? "line-through  " : "",
+                      // textDecoration: todo.isDone ? "line-through  " : "",
                       color: todo.isDone ? "gray" : "",
                     }}
                   />
