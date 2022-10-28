@@ -167,7 +167,7 @@ function App() {
                   // presentation="date"
                   showDefaultButtons={true}
                   onIonChange={(e) => {
-                    const newValue = e.target.value;
+                    const newValue = e.detail.value;
                     if (newValue === null || newValue === undefined) {
                       return;
                     }
