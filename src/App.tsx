@@ -171,16 +171,18 @@ function App() {
                     if (newValue === null || newValue === undefined) {
                       return;
                     }
-                    console.log(
-                      format(parseISO(newValue), "yyyy/M/d(E) HH:mm", {
-                        locale: ja,
-                      })
-                    );
-                    setDate(
-                      format(parseISO(newValue), "yyyy/M/d(E)", {
-                        locale: ja,
-                      })
-                    );
+                    if (typeof newValue === "string") {
+                      console.log(
+                        format(parseISO(newValue), "yyyy/M/d(E) HH:mm", {
+                          locale: ja,
+                        })
+                      );
+                      setDate(
+                        format(parseISO(newValue), "yyyy/M/d(E)", {
+                          locale: ja,
+                        })
+                      );
+                    }
                   }}
                 ></IonDatetime>
               </IonModal>
