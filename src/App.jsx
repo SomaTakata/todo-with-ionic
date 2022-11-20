@@ -49,6 +49,7 @@ import "./style.css";
 import { useState } from "react";
 import { nanoid } from "nanoid";
 import { calendarOutline } from "ionicons/icons";
+import json from "formidable/src/plugins/json";
 setupIonicReact();
 
 function App() {
@@ -92,14 +93,14 @@ function App() {
   // }
   // 編集
 
-  const handleEdit = (id, content) => {
-    const newState = todos.map((todo) => {
-      if (todo.id !== id) return todo;
-      return { ...todo, content: content };
-    });
+  // const handleEdit = (id, content) => {
+  //   const newState = todos.map((todo) => {
+  //     if (todo.id !== id) return todo;
+  //     return { ...todo, content: content };
+  //   });
 
-    setTodos(newState);
-  };
+  //   setTodos(newState);
+  // };
 
   // 送信
   const handleSubmit = (event) => {
@@ -260,7 +261,7 @@ function App() {
                       // localStorage.setItem("todos", JSON.stringify(strageItem));
 
                       setTodos((prevTodos) => {
-                        return prevTodos.map((prevTodo) => {
+                        prevTodos.map((prevTodo) => {
                           if (todo.id === prevTodo.id) {
                             return {
                               ...prevTodo,
@@ -270,6 +271,8 @@ function App() {
                           // console.log(prevTodo);
                           return prevTodo;
                         });
+                        // localStorage.setItem("todos", JSON.stringify(newValue));
+                        // return newValue;
                       });
                     }}
                   />
@@ -285,7 +288,7 @@ function App() {
                         return;
                       }
                       setTodos((prevTodos) => {
-                        return prevTodos.map((prevTodo) => {
+                        const newTodos = prevTodos.map((prevTodo) => {
                           if (todo.id === prevTodo.id) {
                             // edit
                             return {
@@ -295,6 +298,8 @@ function App() {
                           }
                           return prevTodo;
                         });
+                        localStorage.setItem("todos", JSON.stringify(newTodos));
+                        return newTodos;
                       });
                     }}
                     style={{
@@ -314,6 +319,7 @@ function App() {
                         (todos) => todos.id !== todo.id
                       );
                       setTodos(newState);
+                      localStorage.setItem("todos", JSON.stringify(newState));
                     }}
                   >
                     削除
