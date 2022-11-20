@@ -65,6 +65,9 @@ interface editTodo {
 }
 
 function App() {
+  if (localStorage.getItem("todos") === null) {
+    localStorage.setItem("todos", "[]");
+  }
   const [todos, setTodos] = useState<Todo[]>(
     JSON.parse(localStorage.getItem("todos"))
   );
