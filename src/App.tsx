@@ -69,7 +69,7 @@ function App() {
     localStorage.setItem("todos", "[]");
   }
   const [todos, setTodos] = useState<Todo[]>(
-    JSON.parse(localStorage.getItem("todos"))
+    JSON.parse(localStorage.getItem("todos") || "null")
   );
   // 追加したところ
   localStorage.setItem("todos", JSON.stringify(todos));
@@ -261,7 +261,7 @@ function App() {
               </div> */}
             </IonListHeader>
             {/* {todos.map((todo) => { */}
-            {filteredTodo.map((todo) => {
+            {filteredTodo.map((todo, index) => {
               return (
                 <IonItem key={todo.id} className="border">
                   <IonCheckbox
@@ -338,15 +338,7 @@ function App() {
                         (todos) => todos.id !== todo.id
                       );
                       setTodos(newState);
-                      // localStorage.setItem("todos", JSON.stringify(newState));
-                      // let strageItem = JSON.parse(
-                      //   localStorage.getItem("todos")
-                      // );
-                      // console.log(index);
-                      // strageItem.splice(index, 1);
-                      // localStorage.setItem("todos", JSON.stringify(strageItem));
-
-                      // console.log(strageItem);
+                      localStorage.setItem("todos", JSON.stringify(newState));
                     }}
                   >
                     削除
