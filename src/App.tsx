@@ -1,6 +1,6 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { format, getYear, parseISO } from "date-fns";
-import { ja } from "date-fns/locale";
+import { id, ja } from "date-fns/locale";
 /* Core CSS required for Ionic components to work properly */
 import "@ionic/react/css/core.css";
 
@@ -50,6 +50,7 @@ import { IonInputCustomEvent, InputChangeEventDetail } from "@ionic/core";
 import { useState } from "react";
 import { nanoid } from "nanoid";
 import { calendarOutline } from "ionicons/icons";
+import { removeTimezone } from "@mobiscroll/react/dist/src/core/util/datetime";
 setupIonicReact();
 interface Todo {
   id: string;
@@ -64,22 +65,12 @@ interface editTodo {
 }
 
 function App() {
-  const [todos, setTodos] = useState<Todo[]>([
-    {
-      content: "todoの内容",
-      id: "1",
-      boolean: false,
-      isDone: false,
-      todoDate: "2022/10/10(月) ",
-    },
-    {
-      id: "2",
-      content: "二つ目の内容",
-      boolean: true,
-      isDone: true,
-      todoDate: "2022/10/13(木)",
-    },
-  ]);
+  const [todos, setTodos] = useState<Todo[]>(
+    JSON.parse(localStorage.getItem("todos"))
+  );
+  // 追加したところ
+  localStorage.setItem("todos", JSON.stringify(todos));
+  console.log(todos);
   // 入力ホーム
   const [input, setInput] = useState<string>("");
   const [date, setDate] = useState<string>("");
@@ -96,12 +87,29 @@ function App() {
     }
     setInput(value.toString());
   };
+  // function getItem(key: string) {
+  //   const value = localStorage.getItem(key);
+  //   if (value !== null) {
+  //     return value;
+  //   }
+  //   return "";
+  // }
 
+  // function removeItem(key: string) {
+  //   localStorage.removeItem(key);
+  // }
+
+  // function setItem(key: string, value: any) {
+  //   localStorage.setItem(key, value);
+  // }
   // 編集
+
   const handleEdit = (id: string, content: string) => {
     const newState = todos.map((todo) => {
       if (todo.id !== id) return todo;
       return { ...todo, content: content };
+
+      localStorage.setItem("todos", JSON.stringify(todos));
     });
 
     setTodos(newState);
@@ -122,21 +130,40 @@ function App() {
 
     setTodos((prevState) => [...prevState, newTodo]);
     setInput("");
+    // var oldData = JSON.parse(localStorage.getItem("todos"));
+    // oldData.push(newTodo);
+    // localStorage.setItem("todos", JSON.stringify(oldData));
   };
-
   // 消去
-  const handleDelete = (id: string) => {
-    const newState = todos.filter((todo) => todo.id !== id);
-    setTodos(newState);
-  };
+  // const handleDelete = (id: string, todo) => {
+  //   const newState = todos.filter((todo) => todo.id !== id);
+  //   setTodos(newState);
+  //   localStorage.setItem("todos", JSON.stringify(newState));
+  // };
   // const handleAllDelete = () => {
   //   setTodos([]);
   // };
+
   const modal = useRef<HTMLIonModalElement>(null);
 
   function dismiss() {
     modal.current?.dismiss();
   }
+  // 検索
+  const [filter, setFilter] = useState<Filter>("all");
+  type Filter = "all" | "checked" | "unchecked";
+  const filteredTodo = todos.filter((todo) => {
+    switch (filter) {
+      case "all":
+        return todo;
+      case "checked":
+        return todo.isDone;
+      case "unchecked":
+        return !todo.isDone;
+      default:
+        return todo;
+    }
+  });
   return (
     <IonApp>
       <IonPage>
@@ -202,13 +229,26 @@ function App() {
           <IonList className="ion-padding-vertical">
             <IonListHeader color="medium">
               <IonLabel>TODO一覧</IonLabel>
-              <IonLabel color="light">
+              {/* <IonLabel color="light">
                 <div className="dateDisplay">いつまでに</div>
-              </IonLabel>
+              </IonLabel> */}
               <div>
-                <IonSelect interface="popover" placeholder="並び替え">
-                  <IonSelectOption value="up">昇順</IonSelectOption>
-                  <IonSelectOption value="down">降順</IonSelectOption>
+                <IonSelect
+                  interface="popover"
+                  defaultValue="all"
+                  placeholder="すべてのタスク"
+                  onIonChange={(e) => {
+                    setFilter(e.target.value as Filter);
+                    console.log(e.target.value as Filter);
+                  }}
+                >
+                  <IonSelectOption value="all">すべてのタスク</IonSelectOption>
+                  <IonSelectOption value="unchecked">
+                    現在のタスク
+                  </IonSelectOption>
+                  <IonSelectOption value="checked">
+                    完了したタスク
+                  </IonSelectOption>
                 </IonSelect>
               </div>
               {/* <div>
@@ -217,7 +257,8 @@ function App() {
                 </IonButton>
               </div> */}
             </IonListHeader>
-            {todos.map((todo) => {
+            {/* {todos.map((todo) => { */}
+            {filteredTodo.map((todo) => {
               return (
                 <IonItem key={todo.id} className="border">
                   <IonCheckbox
@@ -229,6 +270,12 @@ function App() {
                         return;
                       }
 
+                      // let strageItem = JSON.parse(
+                      //   localStorage.getItem("todos")
+                      // );
+                      // console.log(index);
+                      // localStorage.setItem("todos", JSON.stringify(strageItem));
+
                       setTodos((prevTodos) => {
                         return prevTodos.map((prevTodo) => {
                           if (todo.id === prevTodo.id) {
@@ -237,24 +284,23 @@ function App() {
                               isDone: newValue,
                             };
                           }
+                          // console.log(prevTodo);
                           return prevTodo;
                         });
                       });
                     }}
                   />
-
                   <IonInput
                     className="text"
                     type="text"
                     disabled={todo.isDone}
                     value={todo.content}
                     onIonChange={(e) => {
+                      e.preventDefault();
                       const newContent = e.detail.value;
-
                       if (newContent === null || newContent === undefined) {
                         return;
                       }
-
                       setTodos((prevTodos) => {
                         return prevTodos.map((prevTodo) => {
                           if (todo.id === prevTodo.id) {
@@ -264,8 +310,11 @@ function App() {
                               content: newContent,
                             };
                           }
-
                           return prevTodo;
+                          localStorage.setItem(
+                            "todos",
+                            JSON.stringify(prevTodo)
+                          );
                         });
                       });
                     }}
@@ -277,13 +326,24 @@ function App() {
                   <IonLabel color="medium">
                     <div className="date">{todo.todoDate.toLocaleString()}</div>
                   </IonLabel>
-
                   <IonButton
                     slot="end"
                     size="default"
                     color="danger"
                     onClick={() => {
-                      handleDelete(todo.id);
+                      const newState = todos.filter(
+                        (todos) => todos.id !== todo.id
+                      );
+                      setTodos(newState);
+                      // localStorage.setItem("todos", JSON.stringify(newState));
+                      // let strageItem = JSON.parse(
+                      //   localStorage.getItem("todos")
+                      // );
+                      // console.log(index);
+                      // strageItem.splice(index, 1);
+                      // localStorage.setItem("todos", JSON.stringify(strageItem));
+
+                      // console.log(strageItem);
                     }}
                   >
                     削除
