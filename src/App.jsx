@@ -49,7 +49,6 @@ import "./style.css";
 import { useState } from "react";
 import { nanoid } from "nanoid";
 import { calendarOutline } from "ionicons/icons";
-import json from "formidable/src/plugins/json";
 setupIonicReact();
 
 function App() {
@@ -60,7 +59,6 @@ function App() {
     JSON.parse(localStorage.getItem("todos") || "null")
   );
   // 追加したところ
-  localStorage.setItem("todos", JSON.stringify(todos));
   console.log(todos);
   // 入力ホーム
   const [input, setInput] = useState("");
