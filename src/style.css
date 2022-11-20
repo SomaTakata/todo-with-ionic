@@ -34,7 +34,7 @@ ion-header {
   text-align: center;
 }
 ion-select {
-  font-size: 5px;
+  font-size: small;
   margin-right: 10px;
 }
 div.date {

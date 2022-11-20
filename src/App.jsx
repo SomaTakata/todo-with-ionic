@@ -46,44 +46,29 @@ import {
   IonSelectOption,
 } from "@ionic/react";
 import "./style.css";
-import { IonInputCustomEvent, InputChangeEventDetail } from "@ionic/core";
 import { useState } from "react";
 import { nanoid } from "nanoid";
 import { calendarOutline } from "ionicons/icons";
-import { removeTimezone } from "@mobiscroll/react/dist/src/core/util/datetime";
 setupIonicReact();
-interface Todo {
-  id: string;
-  content: string;
-  boolean: boolean;
-  isDone: boolean;
-  todoDate: string;
-}
-interface editTodo {
-  content: string;
-  id: string;
-}
 
 function App() {
   if (localStorage.getItem("todos") === null) {
     localStorage.setItem("todos", "[]");
   }
-  const [todos, setTodos] = useState<Todo[]>(
+  const [todos, setTodos] = useState(
     JSON.parse(localStorage.getItem("todos") || "null")
   );
   // 追加したところ
   localStorage.setItem("todos", JSON.stringify(todos));
   console.log(todos);
   // 入力ホーム
-  const [input, setInput] = useState<string>("");
-  const [date, setDate] = useState<string>("");
+  const [input, setInput] = useState("");
+  const [date, setDate] = useState("");
 
   //編集用
-  const [editedInput, setEditedInput] = useState<string>("");
+  const [editedInput, setEditedInput] = useState("");
   // 文字列の受け取り
-  const handleChangeInput = (
-    event: IonInputCustomEvent<InputChangeEventDetail>
-  ): void => {
+  const handleChangeInput = (event) => {
     const value = event.target.value;
     if (value === null || value === undefined) {
       return;
@@ -107,7 +92,7 @@ function App() {
   // }
   // 編集
 
-  const handleEdit = (id: string, content: string) => {
+  const handleEdit = (id, content) => {
     const newState = todos.map((todo) => {
       if (todo.id !== id) return todo;
       return { ...todo, content: content };
@@ -119,11 +104,9 @@ function App() {
   };
 
   // 送信
-  const handleSubmit: React.MouseEventHandler<HTMLIonButtonElement> = (
-    event
-  ) => {
+  const handleSubmit = (event) => {
     event.preventDefault();
-    const newTodo: Todo = {
+    const newTodo = {
       id: nanoid(),
       content: input,
       boolean: true,
@@ -147,14 +130,13 @@ function App() {
   //   setTodos([]);
   // };
 
-  const modal = useRef<HTMLIonModalElement>(null);
+  const modal = useRef("null");
 
   function dismiss() {
     modal.current?.dismiss();
   }
   // 検索
-  const [filter, setFilter] = useState<Filter>("all");
-  type Filter = "all" | "checked" | "unchecked";
+  const [filter, setFilter] = useState("all");
   const filteredTodo = todos.filter((todo) => {
     switch (filter) {
       case "all":
@@ -241,8 +223,8 @@ function App() {
                   defaultValue="all"
                   placeholder="すべてのタスク"
                   onIonChange={(e) => {
-                    setFilter(e.target.value as Filter);
-                    console.log(e.target.value as Filter);
+                    setFilter(e.target.value);
+                    console.log(e.target.value);
                   }}
                 >
                   <IonSelectOption value="all">すべてのタスク</IonSelectOption>
