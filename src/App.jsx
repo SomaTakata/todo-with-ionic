@@ -96,8 +96,6 @@ function App() {
     const newState = todos.map((todo) => {
       if (todo.id !== id) return todo;
       return { ...todo, content: content };
-
-      localStorage.setItem("todos", JSON.stringify(todos));
     });
 
     setTodos(newState);
@@ -296,10 +294,6 @@ function App() {
                             };
                           }
                           return prevTodo;
-                          localStorage.setItem(
-                            "todos",
-                            JSON.stringify(prevTodo)
-                          );
                         });
                       });
                     }}
@@ -320,7 +314,6 @@ function App() {
                         (todos) => todos.id !== todo.id
                       );
                       setTodos(newState);
-                      localStorage.setItem("todos", JSON.stringify(newState));
                     }}
                   >
                     削除
