@@ -52,14 +52,15 @@ import { calendarOutline } from "ionicons/icons";
 setupIonicReact();
 
 function App() {
-  if (localStorage.getItem("todos") === null) {
-    localStorage.setItem("todos", "[]");
-  }
-  const [todos, setTodos] = useState(
-    JSON.parse(localStorage.getItem("todos") || "null")
-  );
+  const [todos, setTodos] = useState([]);
+  // JSON.parse(localStorage.getItem("todos") || "null")
+  useEffect(() => {
+    if (localStorage.getItem("todos") !== null) {
+      setTodos(JSON.parse(localStorage.getItem("todos")));
+    }
+  }, []);
+
   // 追加したところ
-  console.log(todos);
   // 入力ホーム
   const [input, setInput] = useState("");
   const [date, setDate] = useState("");
@@ -113,9 +114,9 @@ function App() {
 
     setTodos((prevState) => [...prevState, newTodo]);
     setInput("");
-    // var oldData = JSON.parse(localStorage.getItem("todos"));
-    // oldData.push(newTodo);
-    // localStorage.setItem("todos", JSON.stringify(oldData));
+    const oldData = JSON.parse(localStorage.getItem("todos"));
+    oldData.push(newTodo);
+    localStorage.setItem("todos", JSON.stringify(oldData));
   };
   // 消去
   // const handleDelete = (id: string, todo) => {
@@ -259,7 +260,7 @@ function App() {
                       // localStorage.setItem("todos", JSON.stringify(strageItem));
 
                       setTodos((prevTodos) => {
-                        prevTodos.map((prevTodo) => {
+                        const newTodos = prevTodos.map((prevTodo) => {
                           if (todo.id === prevTodo.id) {
                             return {
                               ...prevTodo,
@@ -269,8 +270,8 @@ function App() {
                           // console.log(prevTodo);
                           return prevTodo;
                         });
-                        // localStorage.setItem("todos", JSON.stringify(newValue));
-                        // return newValue;
+                        localStorage.setItem("todos", JSON.stringify(newTodos));
+                        return newTodos;
                       });
                     }}
                   />
