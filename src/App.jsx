@@ -98,9 +98,9 @@ function App() {
       });
       return newTodos;
     });
-    const userDocumentRef = doc(db, "todos", id);
-    console.log(userDocumentRef);
-    await updateDoc(userDocumentRef, {
+    const todoDocumentRef = doc(db, "todos", id);
+    console.log(todoDocumentRef);
+    await updateDoc(todoDocumentRef, {
       isDone: newValue,
     });
   };
@@ -123,9 +123,9 @@ function App() {
       });
       return newTodos;
     });
-    const userDocumentRef = doc(db, "todos", id);
-    console.log(userDocumentRef);
-    await updateDoc(userDocumentRef, {
+    const todoDocumentRef = doc(db, "todos", id);
+    console.log(todoDocumentRef);
+    await updateDoc(todoDocumentRef, {
       content: newValue,
     });
   };
@@ -141,8 +141,8 @@ function App() {
     };
     setTodos((prevState) => [...prevState, newTodo]);
     setInput("");
-    const usersCollectionRef = collection(db, "todos");
-    const documentRef = await addDoc(usersCollectionRef, newTodo);
+    const todosCollectionRef = collection(db, "todos");
+    const documentRef = await addDoc(todosCollectionRef, newTodo);
     console.log(documentRef);
   };
 
@@ -172,9 +172,9 @@ function App() {
     const newState = todos.filter((todos) => todos.id !== id);
     setTodos(newState);
     console.log(id);
-    const userDocumentRef = doc(db, "todos", id);
-    console.log(userDocumentRef);
-    await deleteDoc(userDocumentRef);
+    const todoDocumentRef = doc(db, "todos", id);
+    console.log(todoDocumentRef);
+    await deleteDoc(todoDocumentRef);
   };
 
   return (
