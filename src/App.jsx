@@ -1,6 +1,15 @@
 import React, { useEffect, useRef } from "react";
-import { format, getYear, parseISO } from "date-fns";
-import { id, ja } from "date-fns/locale";
+import { format, parseISO } from "date-fns";
+import { ja } from "date-fns/locale";
+import { db } from "./firebase";
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  onSnapshot,
+  updateDoc,
+} from "firebase/firestore";
 /* Core CSS required for Ionic components to work properly */
 import "@ionic/react/css/core.css";
 
@@ -30,14 +39,7 @@ import {
   IonInput,
   IonIcon,
   IonListHeader,
-  IonItemSliding,
-  IonItemOptions,
-  IonItemOption,
-  IonItemGroup,
   IonCheckbox,
-  IonReorder,
-  IonReorderGroup,
-  IonVirtualScroll,
   IonCard,
   IonDatetime,
   IonButtons,
@@ -53,14 +55,16 @@ setupIonicReact();
 
 function App() {
   const [todos, setTodos] = useState([]);
-  // JSON.parse(localStorage.getItem("todos") || "null")
   useEffect(() => {
-    if (localStorage.getItem("todos") !== null) {
-      setTodos(JSON.parse(localStorage.getItem("todos")));
-    }
+    const todosCollectionRef = collection(db, "todos");
+    const unsub = onSnapshot(todosCollectionRef, (querySnapshot) => {
+      setTodos(
+        querySnapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }))
+      );
+    });
+    return unsub;
   }, []);
 
-  // 追加したところ
   // 入力ホーム
   const [input, setInput] = useState("");
   const [date, setDate] = useState("");
@@ -75,59 +79,74 @@ function App() {
     }
     setInput(value.toString());
   };
-  // function getItem(key: string) {
-  //   const value = localStorage.getItem(key);
-  //   if (value !== null) {
-  //     return value;
-  //   }
-  //   return "";
-  // }
 
-  // function removeItem(key: string) {
-  //   localStorage.removeItem(key);
-  // }
+  // 　チェック
+  const handleChecked = async (e, id) => {
+    const newValue = e.detail.checked;
+    if (newValue === null || newValue === undefined) {
+      return;
+    }
+    setTodos((prevTodos) => {
+      const newTodos = prevTodos.map((prevTodo) => {
+        if (id === prevTodo.id) {
+          return {
+            ...prevTodo,
+            isDone: newValue,
+          };
+        }
+        return prevTodo;
+      });
+      return newTodos;
+    });
+    const userDocumentRef = doc(db, "todos", id);
+    console.log(userDocumentRef);
+    await updateDoc(userDocumentRef, {
+      isDone: newValue,
+    });
+  };
 
-  // function setItem(key: string, value: any) {
-  //   localStorage.setItem(key, value);
-  // }
   // 編集
-
-  // const handleEdit = (id, content) => {
-  //   const newState = todos.map((todo) => {
-  //     if (todo.id !== id) return todo;
-  //     return { ...todo, content: content };
-  //   });
-
-  //   setTodos(newState);
-  // };
+  const handleEdit = async (e, id) => {
+    const newValue = e.detail.value;
+    if (newValue === null || newValue === undefined) {
+      return;
+    }
+    setTodos((prevTodos) => {
+      const newTodos = prevTodos.map((prevTodo) => {
+        if (id === prevTodo.id) {
+          return {
+            ...prevTodo,
+            content: newValue,
+          };
+        }
+        return prevTodo;
+      });
+      return newTodos;
+    });
+    const userDocumentRef = doc(db, "todos", id);
+    console.log(userDocumentRef);
+    await updateDoc(userDocumentRef, {
+      content: newValue,
+    });
+  };
 
   // 送信
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const newTodo = {
       id: nanoid(),
       content: input,
-      boolean: true,
       isDone: false,
       todoDate: date,
     };
-
     setTodos((prevState) => [...prevState, newTodo]);
     setInput("");
-    const oldData = JSON.parse(localStorage.getItem("todos"));
-    oldData.push(newTodo);
-    localStorage.setItem("todos", JSON.stringify(oldData));
+    const usersCollectionRef = collection(db, "todos");
+    const documentRef = await addDoc(usersCollectionRef, newTodo);
+    console.log(documentRef);
   };
-  // 消去
-  // const handleDelete = (id: string, todo) => {
-  //   const newState = todos.filter((todo) => todo.id !== id);
-  //   setTodos(newState);
-  //   localStorage.setItem("todos", JSON.stringify(newState));
-  // };
-  // const handleAllDelete = () => {
-  //   setTodos([]);
-  // };
 
+  // モーダル
   const modal = useRef("null");
 
   function dismiss() {
@@ -147,6 +166,17 @@ function App() {
         return todo;
     }
   });
+
+  // 消去
+  const deleteTodo = async (id) => {
+    const newState = todos.filter((todos) => todos.id !== id);
+    setTodos(newState);
+    console.log(id);
+    const userDocumentRef = doc(db, "todos", id);
+    console.log(userDocumentRef);
+    await deleteDoc(userDocumentRef);
+  };
+
   return (
     <IonApp>
       <IonPage>
@@ -174,7 +204,6 @@ function App() {
               </IonButtons>
               <IonModal id="calendar" ref={modal} trigger="open-modal">
                 <IonDatetime
-                  // presentation="date"
                   showDefaultButtons={true}
                   onIonChange={(e) => {
                     const newValue = e.detail.value;
@@ -212,9 +241,6 @@ function App() {
           <IonList className="ion-padding-vertical">
             <IonListHeader color="medium">
               <IonLabel>TODO一覧</IonLabel>
-              {/* <IonLabel color="light">
-                <div className="dateDisplay">いつまでに</div>
-              </IonLabel> */}
               <div>
                 <IonSelect
                   interface="popover"
@@ -234,45 +260,14 @@ function App() {
                   </IonSelectOption>
                 </IonSelect>
               </div>
-              {/* <div>
-                <IonButton className="allDelete" size="default">
-                  並び替え
-                </IonButton>
-              </div> */}
             </IonListHeader>
-            {/* {todos.map((todo) => { */}
             {filteredTodo.map((todo, index) => {
               return (
                 <IonItem key={todo.id} className="border">
                   <IonCheckbox
                     checked={todo.isDone}
                     onIonChange={(e) => {
-                      const newValue = e.detail.checked;
-
-                      if (newValue === null || newValue === undefined) {
-                        return;
-                      }
-
-                      // let strageItem = JSON.parse(
-                      //   localStorage.getItem("todos")
-                      // );
-                      // console.log(index);
-                      // localStorage.setItem("todos", JSON.stringify(strageItem));
-
-                      setTodos((prevTodos) => {
-                        const newTodos = prevTodos.map((prevTodo) => {
-                          if (todo.id === prevTodo.id) {
-                            return {
-                              ...prevTodo,
-                              isDone: newValue,
-                            };
-                          }
-                          // console.log(prevTodo);
-                          return prevTodo;
-                        });
-                        localStorage.setItem("todos", JSON.stringify(newTodos));
-                        return newTodos;
-                      });
+                      handleChecked(e, todo.id);
                     }}
                   />
                   <IonInput
@@ -281,25 +276,7 @@ function App() {
                     disabled={todo.isDone}
                     value={todo.content}
                     onIonChange={(e) => {
-                      e.preventDefault();
-                      const newContent = e.detail.value;
-                      if (newContent === null || newContent === undefined) {
-                        return;
-                      }
-                      setTodos((prevTodos) => {
-                        const newTodos = prevTodos.map((prevTodo) => {
-                          if (todo.id === prevTodo.id) {
-                            // edit
-                            return {
-                              ...prevTodo,
-                              content: newContent,
-                            };
-                          }
-                          return prevTodo;
-                        });
-                        localStorage.setItem("todos", JSON.stringify(newTodos));
-                        return newTodos;
-                      });
+                      handleEdit(e, todo.id);
                     }}
                     style={{
                       // textDecoration: todo.isDone ? "line-through  " : "",
@@ -314,11 +291,7 @@ function App() {
                     size="default"
                     color="danger"
                     onClick={() => {
-                      const newState = todos.filter(
-                        (todos) => todos.id !== todo.id
-                      );
-                      setTodos(newState);
-                      localStorage.setItem("todos", JSON.stringify(newState));
+                      deleteTodo(todo.id);
                     }}
                   >
                     削除
