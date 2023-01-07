@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
-import { format, getYear, parseISO } from "date-fns";
-import { id, ja } from "date-fns/locale";
+import { format, parseISO } from "date-fns";
+import { ja } from "date-fns/locale";
 /* Core CSS required for Ionic components to work properly */
 import "@ionic/react/css/core.css";
 
@@ -30,14 +30,7 @@ import {
   IonInput,
   IonIcon,
   IonListHeader,
-  IonItemSliding,
-  IonItemOptions,
-  IonItemOption,
-  IonItemGroup,
   IonCheckbox,
-  IonReorder,
-  IonReorderGroup,
-  IonVirtualScroll,
   IonCard,
   IonDatetime,
   IonButtons,
@@ -75,31 +68,6 @@ function App() {
     }
     setInput(value.toString());
   };
-  // function getItem(key: string) {
-  //   const value = localStorage.getItem(key);
-  //   if (value !== null) {
-  //     return value;
-  //   }
-  //   return "";
-  // }
-
-  // function removeItem(key: string) {
-  //   localStorage.removeItem(key);
-  // }
-
-  // function setItem(key: string, value: any) {
-  //   localStorage.setItem(key, value);
-  // }
-  // 編集
-
-  // const handleEdit = (id, content) => {
-  //   const newState = todos.map((todo) => {
-  //     if (todo.id !== id) return todo;
-  //     return { ...todo, content: content };
-  //   });
-
-  //   setTodos(newState);
-  // };
 
   // 送信
   const handleSubmit = (event) => {
@@ -118,15 +86,6 @@ function App() {
     oldData.push(newTodo);
     localStorage.setItem("todos", JSON.stringify(oldData));
   };
-  // 消去
-  // const handleDelete = (id: string, todo) => {
-  //   const newState = todos.filter((todo) => todo.id !== id);
-  //   setTodos(newState);
-  //   localStorage.setItem("todos", JSON.stringify(newState));
-  // };
-  // const handleAllDelete = () => {
-  //   setTodos([]);
-  // };
 
   const modal = useRef("null");
 
@@ -212,9 +171,7 @@ function App() {
           <IonList className="ion-padding-vertical">
             <IonListHeader color="medium">
               <IonLabel>TODO一覧</IonLabel>
-              {/* <IonLabel color="light">
-                <div className="dateDisplay">いつまでに</div>
-              </IonLabel> */}
+
               <div>
                 <IonSelect
                   interface="popover"
@@ -234,13 +191,7 @@ function App() {
                   </IonSelectOption>
                 </IonSelect>
               </div>
-              {/* <div>
-                <IonButton className="allDelete" size="default">
-                  並び替え
-                </IonButton>
-              </div> */}
             </IonListHeader>
-            {/* {todos.map((todo) => { */}
             {filteredTodo.map((todo, index) => {
               return (
                 <IonItem key={todo.id} className="border">
@@ -253,12 +204,6 @@ function App() {
                         return;
                       }
 
-                      // let strageItem = JSON.parse(
-                      //   localStorage.getItem("todos")
-                      // );
-                      // console.log(index);
-                      // localStorage.setItem("todos", JSON.stringify(strageItem));
-
                       setTodos((prevTodos) => {
                         const newTodos = prevTodos.map((prevTodo) => {
                           if (todo.id === prevTodo.id) {
@@ -267,7 +212,6 @@ function App() {
                               isDone: newValue,
                             };
                           }
-                          // console.log(prevTodo);
                           return prevTodo;
                         });
                         localStorage.setItem("todos", JSON.stringify(newTodos));
@@ -289,7 +233,6 @@ function App() {
                       setTodos((prevTodos) => {
                         const newTodos = prevTodos.map((prevTodo) => {
                           if (todo.id === prevTodo.id) {
-                            // edit
                             return {
                               ...prevTodo,
                               content: newContent,
@@ -302,7 +245,6 @@ function App() {
                       });
                     }}
                     style={{
-                      // textDecoration: todo.isDone ? "line-through  " : "",
                       color: todo.isDone ? "gray" : "",
                     }}
                   />
